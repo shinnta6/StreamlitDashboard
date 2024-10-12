@@ -19,7 +19,8 @@ st.sidebar.title("Navigation")
 section = st.sidebar.radio("Go to", 
                            ["Introduction & General Statistics", 
                             "Weather Impact on Rentals", 
-                            "Rental Patterns"])
+                            "Rental Patterns", 
+                            "Rentals per Hour Categories"])
 
 # Date input for filtering
 if section == "Introduction & General Statistics":
@@ -169,4 +170,33 @@ if section == "Rental Patterns":
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.lineplot(x='hr', y='cnt', hue='workingday', data=hours_data, marker='o', palette='coolwarm', ax=ax)
     ax.set_title('Hourly Rentals: Weekdays vs Weekends', fontsize=16)
+    st.pyplot(fig)
+
+# Rentals per Hour Categories
+if section == "Rentals per Hour Categories":
+    st.header("⏳ Rental Patterns by Hour")
+    st.write("""
+    Analyze bike rentals across different time categories (Night, Morning, Afternoon, Evening). This analysis helps identify when the rental activity is highest throughout the day.
+    """)
+    
+    # Binning the hour into categories
+    hour_bins = [0, 6, 12, 18, 24]
+    hour_labels = ['Night', 'Morning', 'Afternoon', 'Evening']
+    hours_data['hour_binned'] = pd.cut(hours_data['hr'], bins=hour_bins, labels=hour_labels, include_lowest=True)
+
+    binned_data = hours_data.groupby('hour_binned')[['cnt', 'casual', 'registered']].mean().reset_index()
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    bar_width = 0.2
+    x = range(len(binned_data))
+
+    # Plot the average rentals
+    plt.bar(x, binned_data['cnt'], width=bar_width, label='Total Rentals', color='blue', align='center')
+    plt.bar([p + bar_width for p in x], binned_data['casual'], width=bar_width, label='Casual Rentals', color='red', align='center')
+    plt.bar([p + bar_width * 2 for p in x], binned_data['registered'], width=bar_width, label='Registered Rentals', color='green', align='center')
+    plt.title('Average Bike Rentals by Time of Day (Binned)', fontsize=16)
+    plt.xlabel('Time of Day', fontsize=12)
+    plt.ylabel('Average Rentals', fontsize=12)
+    plt.xticks([p + bar_width for p in x], binned_data['hour_binned'])
+    plt.legend()
     st.pyplot(fig)
