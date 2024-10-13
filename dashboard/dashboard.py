@@ -1,14 +1,18 @@
 import streamlit as st
 import pandas as pd
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Set the Seaborn theme for all plots
 sns.set(style="whitegrid")
 
-# Load your datasets
-hours_data = pd.read_csv('hours_data.csv')
-days_data = pd.read_csv('days_data.csv')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+hours_file = os.path.join(current_dir, 'hours_data.csv')
+days_file = os.path.join(current_dir, 'days_data.csv')
+
+hours_data = pd.read_csv(hours_file)
+days_data = pd.read_csv(days_file)
 
 # Convert date columns to datetime
 days_data['dteday'] = pd.to_datetime(days_data['dteday'])
